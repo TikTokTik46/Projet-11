@@ -63,8 +63,12 @@ def create_app(config={}):
         placesRequired = int(request.form['places'])
         # Correction BUG#2 -> Permet d'éviter qu'un utilisateur utilise
         # plus de points que nécessaire.
-        if placesRequired >= int(club['points']):
+        if placesRequired > int(club['points']):
             flash("You don\'t have enough points")
+            return render_template('booking.html', club=club,
+                                   competition=competition)
+        elif placesRequired > 12:
+            flash("You can\'t book more than 12 places in one competition")
             return render_template('booking.html', club=club,
                                    competition=competition)
         else:
