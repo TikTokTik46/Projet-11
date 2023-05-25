@@ -1,4 +1,5 @@
 import json
+import datetime
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
@@ -46,9 +47,18 @@ def create_app(config={}):
         foundClub = [c for c in clubs if c['name'] == club][0]
         foundCompetition = \
         [c for c in competitions if c['name'] == competition][0]
+        competitionDate = datetime.datetime.strptime(foundCompetition['date'],
+                                                     '%Y-%m-%d %H:%M:%S')
         if foundClub and foundCompetition:
-            return render_template('booking.html', club=foundClub,
-                                   competition=foundCompetition)
+            if competitionDate > datetime.datetime.now():
+                flash("Valid competition")
+                return render_template('booking.html', club=foundClub,
+                                       competition=foundCompetition)
+            else:
+                flash("This competition is closed.")
+                return render_template(
+                    "welcome.html", club=foundClub, competitions=competitions, clubs=clubs
+                )
         else:
             flash("Something went wrong-please try again")
             return render_template('welcome.html', club=club,
