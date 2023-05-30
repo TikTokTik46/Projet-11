@@ -32,14 +32,15 @@ def create_app(config={}):
     @app.route('/showSummary', methods=['POST'])
     def showSummary():
         try:
-            club = [club for club in clubs if club['email'] == request.form['email']][
-                0]
+            club = \
+                [club for club in clubs if
+                 club['email'] == request.form['email']][
+                    0]
             return render_template('welcome.html', club=club,
                                    competitions=competitions)
         except IndexError:
-            flash("Cette adresse e-mail n'est pas présente dans "
-                  "la base de données",
-                 'error')
+            flash("Cette adresse e-mail n'est pas présente "
+                  "dans la base de données", 'error')
             return redirect(url_for('index'))
 
     @app.route('/book/<competition>/<club>')
@@ -82,6 +83,7 @@ def create_app(config={}):
             return render_template('booking.html', club=club,
                                    competition=competition)
         else:
+            # Correction des bugs n°2 et n°6
             competition['numberOfPlaces'] = int(
                 competition['numberOfPlaces']) - placesRequired
             club['points'] = int(
