@@ -82,6 +82,7 @@ def create_app(config={}):
             return render_template('booking.html', club=club,
                                    competition=competition)
         else:
+            # Correction des bugs n°2 et n°6
             competition['numberOfPlaces'] = int(
                 competition['numberOfPlaces']) - placesRequired
             club['points'] = int(
