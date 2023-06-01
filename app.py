@@ -12,6 +12,8 @@ def loadClubs():
 def loadCompetitions():
     with open('competitions.json') as comps:
         listOfCompetitions = json.load(comps)['competitions']
+        for Competition in listOfCompetitions:
+            Competition['clubsBookedPlaces'] = {}
         return listOfCompetitions
 
 
@@ -69,27 +71,33 @@ def create_app(config={}):
     @app.route('/purchasePlaces', methods=['POST'])
     def purchasePlaces():
         competition = \
-        [c for c in competitions if c['name'] == request.form['competition']][
-            0]
+        [c for c in competitions if c['name'] == request.form['competition']][0]
         club = [c for c in clubs if c['name'] == request.form['club']][0]
         placesRequired = int(request.form['places'])
-        # Correction BUG#2 -> Permet d'éviter qu'un utilisateur utilise
-        # plus de points que nécessaire.
+
+        if club['name'] in competition['clubsBookedPlaces']:
+            placesAlreadyReserved = competition['clubsBookedPlaces'][club['name']]
+        else:
+            placesAlreadyReserved = 0
+        remainingPlaces = 12 - placesAlreadyReserved
+
         if placesRequired > int(club['points']):
             flash("You don\'t have enough points")
             return render_template('booking.html', club=club,
                                    competition=competition)
-        elif placesRequired > 12:
+        elif placesRequired > remainingPlaces:
             flash("You can\'t book more than 12 places in one competition")
             return render_template('booking.html', club=club,
                                    competition=competition)
         else:
-            # Correction des bugs n°2 et n°6
             competition['numberOfPlaces'] = int(
                 competition['numberOfPlaces']) - placesRequired
+            competition['clubsBookedPlaces'].update(
+                {club['name']: placesAlreadyReserved + placesRequired})
             club['points'] = int(
                 club['points']) - placesRequired
             flash('Great-booking complete!')
+
         return render_template('welcome.html', club=club, clubs=clubs,
                                competitions=competitions)
 
