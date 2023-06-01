@@ -36,7 +36,7 @@ def create_app(config={}):
                 [club for club in clubs if
                  club['email'] == request.form['email']][
                     0]
-            return render_template('welcome.html', club=club,
+            return render_template('welcome.html', club=club, clubs=clubs,
                                    competitions=competitions)
         except IndexError:
             flash("Cette adresse e-mail n'est pas présente "
@@ -58,11 +58,12 @@ def create_app(config={}):
             else:
                 flash("This competition is closed.")
                 return render_template(
-                    "welcome.html", club=foundClub, competitions=competitions, clubs=clubs
+                    "welcome.html", club=foundClub, competitions=competitions,
+                    clubs=clubs
                 )
         else:
             flash("Something went wrong-please try again")
-            return render_template('welcome.html', club=club,
+            return render_template('welcome.html', club=club, clubs=clubs,
                                    competitions=competitions)
 
     @app.route('/purchasePlaces', methods=['POST'])
@@ -89,10 +90,8 @@ def create_app(config={}):
             club['points'] = int(
                 club['points']) - placesRequired
             flash('Great-booking complete!')
-        return render_template('welcome.html', club=club,
+        return render_template('welcome.html', club=club, clubs=clubs,
                                competitions=competitions)
-
-    # TODO: Add route for points display
 
     @app.route('/logout')
     def logout():
