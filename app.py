@@ -47,26 +47,27 @@ def create_app(config={}):
 
     @app.route('/book/<competition>/<club>')
     def book(competition, club):
-        foundClub = [c for c in clubs if c['name'] == club][0]
-        foundCompetition = \
-        [c for c in competitions if c['name'] == competition][0]
-        competitionDate = datetime.datetime.strptime(foundCompetition['date'],
-                                                     '%Y-%m-%d %H:%M:%S')
-        if foundClub and foundCompetition:
-            if competitionDate > datetime.datetime.now():
-                flash("Valid competition")
-                return render_template('booking.html', club=foundClub,
-                                       competition=foundCompetition)
-            else:
-                flash("This competition is closed.")
-                return render_template(
-                    "welcome.html", club=foundClub, competitions=competitions,
-                    clubs=clubs
-                )
+        try:
+            foundClub = [c for c in clubs if c['name'] == club][0]
+            foundCompetition = \
+                [c for c in competitions if c['name'] == competition][0]
+            competitionDate = datetime.datetime.strptime(
+                foundCompetition['date'],
+                '%Y-%m-%d %H:%M:%S')
+        except IndexError:
+            flash("Something went wrong-please try again", 'error')
+            return redirect(url_for('index'))
+        if competitionDate > datetime.datetime.now():
+            flash("Valid competition")
+            return render_template('booking.html', club=foundClub,
+                                   competition=foundCompetition)
         else:
-            flash("Something went wrong-please try again")
-            return render_template('welcome.html', club=club, clubs=clubs,
-                                   competitions=competitions)
+            flash("This competition is closed.")
+            return render_template(
+                "welcome.html", club=foundClub, competitions=competitions,
+                clubs=clubs
+            )
+
 
     @app.route('/purchasePlaces', methods=['POST'])
     def purchasePlaces():
