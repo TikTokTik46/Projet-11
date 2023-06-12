@@ -1,6 +1,7 @@
 import html
 
-def test_max_places_per_club(client, load_clubs_fixture, load_competitions_fixture):
+def test_max_places_per_club(client, load_clubs_fixture,
+                             load_competitions_fixture):
     # Effectuer la première réservation de 7 places
     response = client.post(
         "/purchasePlaces",
